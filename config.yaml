@@ -1,0 +1,31 @@
+data:
+  train_path: "data/train.csv"
+  test_path: "data/test.csv"
+  target_column: "mbdp"
+  feature_columns:
+    - "ga"
+    - "bw"
+    - "sga"
+    - "sex"
+    - "last_alp"
+    - "mean_alp"
+    - "slope_alp"
+    - "last_phosphate"
+    - "cum_pn_days"
+    - "weight_gain_velocity"
+  categorical_columns: ["sga", "sex"]
+
+model:
+  class_weight: "balanced"
+  solver: "lbfgs"
+  max_iter: 1000
+  random_state: 42
+
+threshold:
+  target_sensitivity: 0.95
+
+paths:
+  model_dir: "models"
+  model_name: "mbdp_logistic.joblib"
+  threshold_name: "threshold.joblib"
+  log_dir: "logs"
