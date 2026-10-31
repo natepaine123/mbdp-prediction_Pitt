@@ -1,51 +1,26 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
-from sklearn.impute import SimpleImputer
+import logging
+log = logging.getLogger(__name__)
 
-def load_and_preprocess_data(config):
-    """
-    Load data, split into train/validation/test, and create preprocessing pipeline.
-    """
-    try:
-        df = pd.read_csv(config['data']['train_path'])
-    except FileNotFoundError:
-        print("Data file not found. Generating synthetic data...")
-        from src.data_generator import generate_synthetic_data
-        df = generate_synthetic_data(10000)
-        df.to_csv(config['data']['train_path'], index=False)
+def load_data(config: dict):
+    df = pd.read_csv(config["data"]["train_path"])
+    target = config["data"]["target_column"]
+    if target not in df.columns:
+        raise KeyError(f"Target '{target}' missing from {config['data']['train_path']}. "
+                       f"Run src.real_data_loader first.")
 
-    target = config['data']['target_column']
-    feature_cols = config['data']['feature_columns']
-    categorical_cols = config['data']['categorical_columns']
+    present = [c for c in config["feature_columns"] if c in df.columns]
+    missing = [c for c in config["feature_columns"] if c not in df.columns]
+    if missing:
+        log.warning("Dropping configured features absent from data: %s", missing)
+    if not present:
+        raise ValueError("No configured features exist in the CSV.")
 
-    X = df[feature_cols]
-    y = df[target]
-
-    X_train, X_temp, y_train, y_temp = train_test_split(
-        X, y, test_size=0.4, random_state=config['model']['random_state'], stratify=y
-    )
-    X_val, X_test, y_val, y_test = train_test_split(
-        X_temp, y_temp, test_size=0.5, random_state=config['model']['random_state'], stratify=y_temp
-    )
-
-    numeric_features = [c for c in feature_cols if c not in categorical_cols]
-    numeric_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='median')),
-        ('scaler', StandardScaler())
-    ])
-
-    categorical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='most_frequent')),
-        ('onehot', OneHotEncoder(handle_unknown='ignore'))
-    ])
-
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', numeric_transformer, numeric_features),
-            ('cat', categorical_transformer, categorical_cols)
-        ])
-
-    return X_train, X_val, X_test, y_train, y_val, y_test, preprocessor
+    X, y = df[present], df[target]
+    return train_test_split(
+        X, y,
+        test_size=config["data"]["test_size"],
+        random_state=config["data"]["random_state"],
+        stratify=y,
+    ), present
