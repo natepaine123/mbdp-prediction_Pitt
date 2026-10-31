@@ -1,28 +1,14 @@
-# Virtual environment
-venv/
-env/
-.venv/
-
-# Data and models
-data/
-models/
-logs/
-
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
-*$py.class
+venv/
+.venv/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
+# Data and Models (Do not push these to GitHub)
+data/
+models/
+*.xlsx
+*.xls
+*.joblib
+*.csv
 .DS_Store
-Thumbs.db
-
-# Environment variables
-.env
