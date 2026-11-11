@@ -1,0 +1,7 @@
+Data Source and Usage Description
+
+The dataset used to train this logistic regression model is the "Phosphorus Homeostasis in Premature Infants" dataset, publicly available via Mendeley Data (DOI: 10.17632/6m32bh6rjt.1). It contains clinical and biochemical data for 657 preterm infants (gestational ages 26 to 36+6 weeks). The primary objective of the original dataset was to analyze the risk factors and longitudinal trends of Metabolic Bone Disease of Prematurity (MBDP).
+
+In this repository, the data has been adapted to train our predictive machine learning pipeline. We extracted seven key features from the original spreadsheet to serve as model inputs: gestational age (ga), birth weight (bw), small for gestational age (sga), infant sex (sex), peak alkaline phosphatase (last_alp, derived from ALPmax), serum phosphorus (last_phosphate), and cumulative parenteral nutrition days (cum_pn_days). Categorical variables (like sex and SGA) were numerically encoded (0/1).
+
+The target variable is the binary MBDP diagnosis. By applying the src/data_loader.py script, the raw data is cleaned and transformed into a training CSV. The model is trained using scikit-learn's Logistic Regression with balanced class weights to account for the ~11% prevalence of MBDP. This dataset serves as the foundational ground-truth for our model's training and internal validation, replacing the previous synthetic data. Future work aims to externally validate these findings against live data from UPMC.
